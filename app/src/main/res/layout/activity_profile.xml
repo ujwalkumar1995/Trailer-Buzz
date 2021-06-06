@@ -14,24 +14,14 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/register"
+        android:text="My Profile"
         android:textStyle="bold"
         android:textColor="@color/white"
-        android:textSize="18sp"
-        android:layout_gravity="left">
-    </TextView>
-
-
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/create_a_new_account"
-        android:textColor="@color/silver"
-        android:textSize="15sp"
+        android:textSize="40sp"
         android:layout_marginBottom="30dp"
         android:layout_gravity="left">
     </TextView>
+
 
 
     <TextView
@@ -88,99 +78,21 @@
         android:background="@drawable/edit_text">
     </EditText>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/email"
-        android:textColor="@color/white"
-        android:textSize="20sp"
-        >
-    </TextView>
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="25dp"
-        android:id="@+id/user_email"
-        android:padding="4dp"
-        android:textColorHint="@color/white"
-        android:textColor="@color/black"
-        android:inputType="textEmailAddress"
-        android:background="@drawable/edit_text">
-    </EditText>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/password"
-        android:textColor="@color/white"
-        android:textSize="20sp"
-        >
-    </TextView>
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="25dp"
-        android:padding="4dp"
-        android:inputType="textPassword"
-        android:id="@+id/user_password"
-        android:textColorHint="@color/white"
-        android:textColor="@color/black"
-        android:background="@drawable/edit_text">
-    </EditText>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/confirm_password"
-        android:textColor="@color/white"
-        android:textSize="20sp"
-        >
-    </TextView>
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="25dp"
-        android:padding="4dp"
-        android:inputType="textPassword"
-        android:background="@drawable/edit_text"
-        android:id="@+id/confirm_password"
-        android:textColorHint="@color/white"
-        android:textColor="@color/black">
-    </EditText>
-
-    <CheckBox
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/show_password"
-        android:buttonTint="@color/white"
-        android:textColor="@color/white"
-        android:layout_marginTop="10dp"
-        android:id="@+id/password_checkbox">
-    </CheckBox>
-
     <Button
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:background="@drawable/rounded_button"
         android:textColor="@color/black"
-        android:text="@string/register"
+        android:text="Update"
         android:textSize="20sp"
         android:layout_marginTop="15dp"
-        android:id="@+id/register_button">
+        android:id="@+id/update_button">
     </Button>
 
-
-    <TextView
-        android:layout_marginTop="5dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/white"
-        android:id="@+id/login_text"
-        android:text="@string/login_text">
-    </TextView>
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/register_progress_bar"
-        app:trackColor="@color/white"
-        app:indicatorColor="@color/white"
+        android:id="@+id/profile_progress_bar"
         android:indeterminateTint="@color/white"
         android:indeterminate="true"
         style="@style/Widget.MaterialComponents.LinearProgressIndicator"

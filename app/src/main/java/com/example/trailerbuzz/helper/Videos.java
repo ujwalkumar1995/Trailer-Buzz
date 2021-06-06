@@ -1,4 +1,4 @@
-package com.example.trailerbuzz;
+package com.example.trailerbuzz.helper;
 
 public class Videos {
 

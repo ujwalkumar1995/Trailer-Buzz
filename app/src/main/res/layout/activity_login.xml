@@ -9,7 +9,7 @@
     android:paddingRight="20dp"
     android:gravity="center"
     android:background="@drawable/login_background"
-    tools:context="com.example.trailerbuzz.LoginActivity">
+    tools:context="com.example.trailerbuzz.activities.LoginActivity">
 
 
     <TextView

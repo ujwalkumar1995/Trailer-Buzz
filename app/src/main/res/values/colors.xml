@@ -13,5 +13,14 @@
     <color name="light_grey">#909090</color>
     <color name="silver">#C0C0C0</color>
     <color name="grey_background">#202020</color>
+    <color name="horror_unselected">#ff4d4d</color>
+    <color name="horror_selected">#ff1a1a</color>
+    <color name="action_unselected">#33adff</color>
+    <color name="action_selected">#0099ff</color>
+    <color name="comedy_unselected">#ffff4d</color>
+    <color name="comedy_selected">#ffff00</color>
+    <color name="romance_unselected">#33ff33</color>
+    <color name="romance_selected">#00e600</color>
     <color name="edit_text_background">#C0C0C0</color>
+    <color name="save_deactivated">#737373</color>
 </resources>

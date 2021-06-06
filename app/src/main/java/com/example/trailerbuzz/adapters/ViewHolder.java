@@ -1,4 +1,4 @@
-package com.example.trailerbuzz;
+package com.example.trailerbuzz.adapters;
 
 import android.annotation.SuppressLint;
 import android.app.Application;

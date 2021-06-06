@@ -1,4 +1,4 @@
-package com.example.trailerbuzz;
+package com.example.trailerbuzz.activities;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -20,12 +20,12 @@ public class HomeActivity extends Activity {
         super.onStart();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if(currentUser == null){
-            Intent intent = new Intent(HomeActivity.this,RegisterActivity.class);
+            Intent intent = new Intent(HomeActivity.this, RegisterActivity.class);
             startActivity(intent);
             finish();
         }
         else{
-            Intent intent = new Intent(HomeActivity.this,VideosListActivity.class);
+            Intent intent = new Intent(HomeActivity.this, VideosListActivity.class);
             startActivity(intent);
             finish();
         }

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/login_background"
+    tools:context="com.example.trailerbuzz.activities.GenrePreferenceActivity">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="20dp"
+        android:layout_gravity="center"
+        android:paddingRight="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/welcome_to_trailer_buzz"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:layout_marginBottom="30dp"
+            android:textSize="45sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Let us know more about you!"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="35sp">
+
+        </TextView>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="25sp"
+            android:textAlignment="center"
+            android:textColor="@color/silver"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="30dp"
+            android:text="Please select 3 Categories.">
+        </TextView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal"
+            android:showDividers="middle"
+            android:divider="@drawable/divider"
+            android:layout_marginBottom="10dp"
+            >
+
+            <Button
+                android:id="@+id/action_button"
+                android:text="@string/action"
+                android:onClick="actionButtonClicked"
+                android:layout_height="50dp"
+                android:layout_width="0dp"
+                android:background="@drawable/action_unselected"
+                android:layout_weight="1"
+                 />
+
+            <Button
+                android:id="@+id/comedy_button"
+                android:onClick="comedyButtonClicked"
+                android:text="@string/comedy"
+                android:background="@drawable/comedy_unselected"
+                android:layout_height="50dp"
+                android:layout_width="0dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="1"
+
+                />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal"
+            android:showDividers="middle"
+            android:divider="@drawable/divider"
+            >
+
+            <Button
+                android:id="@+id/horror_button"
+                android:text="@string/horror"
+                android:onClick="horrorButtonClicked"
+                android:layout_height="50dp"
+                android:layout_width="0dp"
+                android:background="@drawable/horror_unselected"
+                android:layout_weight="1"
+                />
+
+            <Button
+                android:id="@+id/romance_button"
+                android:text="@string/romance"
+                android:onClick="romanceButtonClicked"
+                android:layout_height="50dp"
+                android:background="@drawable/romance_unselected"
+                android:layout_width="0dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="1"
+                />
+
+
+        </LinearLayout>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/let_s_get_started"
+            android:id="@+id/save_preferences"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/save_deactivated" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/progress_bar"
+            android:indeterminateTint="@color/white"
+            android:indeterminate="true"
+            style="@style/Widget.MaterialComponents.LinearProgressIndicator"
+            android:visibility="invisible"
+            android:layout_marginTop="20dp" />
+    </LinearLayout>
+
+</ScrollView>

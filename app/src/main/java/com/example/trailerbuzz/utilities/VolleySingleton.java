@@ -1,4 +1,4 @@
-package com.example.trailerbuzz;
+package com.example.trailerbuzz.utilities;
 
 import android.content.Context;
 

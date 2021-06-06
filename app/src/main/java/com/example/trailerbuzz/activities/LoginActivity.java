@@ -1,9 +1,8 @@
-package com.example.trailerbuzz;
+package com.example.trailerbuzz.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -20,7 +19,6 @@ import android.widget.Toast;
 import com.example.exoplayer.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -90,7 +88,7 @@ public class LoginActivity extends AppCompatActivity {
         mRegisterText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this,RegisterActivity.class);
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -111,7 +109,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void sendToVideosList(){
-        Intent intent = new Intent(LoginActivity.this,VideosListActivity.class);
+        Intent intent = new Intent(LoginActivity.this, VideosListActivity.class);
         startActivity(intent);
         finish();
     }

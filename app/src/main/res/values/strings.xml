@@ -17,5 +17,11 @@
     <string name="register">Register</string>
     <string name="show_password">Show Password</string>
     <string name="password_dont_match">Password and Confirm Password do not match</string>
+    <string name="welcome_to_trailer_buzz">Welcome to Trailer Buzz</string>
+    <string name="let_s_get_started">Let\'s get Started!</string>
+    <string name="romance">Romance</string>
+    <string name="horror">Horror</string>
+    <string name="comedy">Comedy</string>
+    <string name="action">Action</string>
 
 </resources>

@@ -1,5 +1,5 @@
 
-package com.example.trailerbuzz;
+package com.example.trailerbuzz.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +26,10 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.example.exoplayer.R;
+import com.example.trailerbuzz.adapters.VideoAdapter;
+import com.example.trailerbuzz.helper.Constants;
+import com.example.trailerbuzz.helper.Videos;
+import com.example.trailerbuzz.utilities.VolleySingleton;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -66,7 +70,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
     private boolean fullscreen = false;
     private boolean playWhenReady = true;
     private String id = "";
-    boolean mProcessLike = false;
+    private boolean mProcessLike = false;
     private int likesCount = 0;
     private int currentWindow = 0;
     private long playbackPosition = 0;
@@ -137,7 +141,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
                                 } else {
                                     likesCount++;
                                     updateLikeCount();
-                                    likeReference.child(id).child(mAuth.getCurrentUser().getUid()).setValue(mAuth.getCurrentUser().getUid());
+                                    likeReference.child(id).child(mAuth.getCurrentUser().getUid()).setValue(mAuth.getCurrentUser().getEmail());
                                     mProcessLike = false;
                                 }
                             }

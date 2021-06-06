@@ -6,14 +6,20 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:weightSum="10"
-    tools:context="com.example.trailerbuzz.VideosListActivity">
+    tools:context="com.example.trailerbuzz.activities.VideosListActivity">
 
 
         <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="8.5"
+            android:layout_weight="4"
             android:id="@+id/video_recycler_view" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:id="@+id/recommended_video_recycler_view" />
 
 
     <RelativeLayout

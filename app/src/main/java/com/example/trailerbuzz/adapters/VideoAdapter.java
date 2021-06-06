@@ -1,11 +1,9 @@
-package com.example.trailerbuzz;
+package com.example.trailerbuzz.adapters;
 
 import android.net.Uri;
-import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -13,13 +11,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.exoplayer.R;
+import com.example.trailerbuzz.helper.Videos;
 import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
-class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder>{
+public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder>{
 
     private ArrayList<Videos> mVideoList;
     private OnItemClickListener mListener;

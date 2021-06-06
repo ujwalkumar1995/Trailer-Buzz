@@ -9,8 +9,13 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true">
-
-        <activity android:name="com.example.trailerbuzz.HomeActivity"
+        <activity android:name="com.example.trailerbuzz.activities.GenrePreferenceActivity"
+        android:theme="@style/Theme.Design.NoActionBar" ></activity>
+        <activity
+            android:name="com.example.trailerbuzz.activities.ProfileActivity"
+            android:theme="@style/Theme.Design.NoActionBar" />
+        <activity
+            android:name="com.example.trailerbuzz.activities.HomeActivity"
             android:theme="@style/LoginTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -18,25 +23,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
         <activity
-            android:name="com.example.trailerbuzz.RegisterActivity"
-            android:theme="@style/Theme.Design.NoActionBar"/>
-
-        <activity
-            android:name="com.example.trailerbuzz.LoginActivity"
+            android:name="com.example.trailerbuzz.activities.RegisterActivity"
             android:theme="@style/Theme.Design.NoActionBar" />
-
-        <activity android:name="com.example.trailerbuzz.VideoPlayerActivity" android:configChanges="keyboardHidden|orientation|screenSize" android:theme="@style/Theme.VideoHut" />
-
         <activity
-            android:name="com.example.trailerbuzz.VideosListActivity"
+            android:name="com.example.trailerbuzz.activities.LoginActivity"
+            android:theme="@style/Theme.Design.NoActionBar" />
+        <activity
+            android:name="com.example.trailerbuzz.activities.VideoPlayerActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:theme="@style/Theme.VideoHut" />
+        <activity
+            android:name="com.example.trailerbuzz.activities.VideosListActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:label="@string/app_name"
-            android:theme="@style/Theme.VideoHut">
-        </activity>
-
+            android:theme="@style/Theme.VideoHut" />
     </application>
 
 </manifest>
