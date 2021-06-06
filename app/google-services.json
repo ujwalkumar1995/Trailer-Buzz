@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "247126011346",
+    "firebase_url": "https://video-hut-baaf2-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "video-hut-baaf2",
+    "storage_bucket": "video-hut-baaf2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:247126011346:android:55485d80457bbce32aac0b",
+        "android_client_info": {
+          "package_name": "com.example.videohut"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "247126011346-ohs61v6rqjvotnn4ur9u153trmhqbhml.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARQeWL5Q6F8dug1hcsVp7dVoVVjEuRCBc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "247126011346-ohs61v6rqjvotnn4ur9u153trmhqbhml.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
