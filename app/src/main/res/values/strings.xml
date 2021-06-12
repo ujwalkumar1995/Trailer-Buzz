@@ -4,6 +4,7 @@
     <string name="service_unavailable">Service Unavailabe</string>
     <string name="login_text"><u>Already have an Account? Login.</u></string>
     <string name="register_text"><u>"Don't have an Account? Register."</u></string>
+    <string name="forget_password"><u>"Forgot Password?"</u></string>
     <string name="please_login_to_continue">Please Login to Continue!</string>
     <string name="welcome_back">Welcome Back!</string>
     <string name="email">Email</string>

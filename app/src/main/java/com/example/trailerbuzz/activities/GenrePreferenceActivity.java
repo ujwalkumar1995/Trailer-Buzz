@@ -84,6 +84,7 @@ public class GenrePreferenceActivity extends AppCompatActivity {
                                 String uid = currentUser.getUid();
                                 mDatabase.child(uid).setValue(user);
                                 generatePreferences();
+
                             }
                             else{
                                 Toast.makeText(getApplicationContext(),task.getException().getMessage(),Toast.LENGTH_LONG).show();
@@ -129,6 +130,9 @@ public class GenrePreferenceActivity extends AppCompatActivity {
                     if(mProcessGenre) {
                         mGenreDatabase.child(mAuth.getCurrentUser().getUid()).child("Genres").setValue(sb.toString());
                         mProcessGenre = false;
+                        Intent intent = new Intent(GenrePreferenceActivity.this, VideosListActivity.class);
+                        startActivity(intent);
+                        finish();
                     }
                 }
 

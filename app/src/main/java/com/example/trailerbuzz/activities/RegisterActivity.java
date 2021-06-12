@@ -117,7 +117,6 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void sendToGenrePreferenceActivity(Users user) {
         Intent intent = new Intent(RegisterActivity.this, GenrePreferenceActivity.class);
-        System.out.println("User1"+user);
         intent.putExtra("user", user);
         startActivity(intent);
         finish();

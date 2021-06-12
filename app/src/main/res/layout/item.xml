@@ -7,13 +7,13 @@
     app:cardCornerRadius="2dp">
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
         android:foregroundGravity="bottom">
 
         <ImageView
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="match_parent"
             android:scaleType="fitXY"
             android:id="@+id/thumbnail">
         </ImageView>

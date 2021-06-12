@@ -3,11 +3,16 @@ package com.example.trailerbuzz.activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -35,6 +40,7 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private LinearProgressIndicator mProgressBar;
     private CheckBox mShowPassword;
+    private TextView mForgotPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +53,7 @@ public class LoginActivity extends AppCompatActivity {
         mRegisterText = (TextView) findViewById(R.id.register_text);
         mProgressBar = (LinearProgressIndicator) findViewById(R.id.login_progress_bar);
         mShowPassword = (CheckBox) findViewById(R.id.password_checkbox);
+        mForgotPassword = (TextView) findViewById(R.id.forget_password);
 
         mShowPassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -94,6 +101,57 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        mForgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openForgotPasswordDialog();
+            }
+        });
+
+    }
+
+    private void openForgotPasswordDialog() {
+        LayoutInflater layoutInflater = LayoutInflater.from(getApplicationContext());
+        View promptsView = layoutInflater.inflate(R.layout.forgot_password_dialog, null);
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                LoginActivity.this);
+        alertDialogBuilder.setView(promptsView);
+
+        EditText userInput = (EditText) promptsView.findViewById(R.id.password_reset_email);
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton("Send", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        FirebaseAuth.getInstance().sendPasswordResetEmail(userInput.getText().toString())
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            Toast.makeText(LoginActivity.this, "Email Sent", Toast.LENGTH_SHORT).show();
+                                        }
+                                        else{
+                                            Toast.makeText(LoginActivity.this, "Invalid Email", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                    }
+                })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+        Button positiveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        Button negativeButton = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+        positiveButton.setTextColor(Color.parseColor("#000000"));
+
+        negativeButton.setTextColor(Color.parseColor("#000000"));
+        alertDialog.getWindow().setBackgroundDrawableResource(R.color.white);
     }
 
     @Override

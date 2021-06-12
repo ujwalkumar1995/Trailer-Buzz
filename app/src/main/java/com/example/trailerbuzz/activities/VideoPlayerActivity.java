@@ -67,35 +67,35 @@ public class VideoPlayerActivity extends AppCompatActivity {
 
 
     private String trailerTitle = "";
-    private boolean fullscreen = false;
-    private boolean playWhenReady = true;
+    private boolean mFullscreen = false;
+    private boolean mPlayWhenReady = true;
     private String id = "";
     private boolean mProcessLike = false;
-    private int likesCount = 0;
-    private int currentWindow = 0;
-    private long playbackPosition = 0;
+    private int mLikesCount = 0;
+    private int mCurrentWindow = 0;
+    private long mPlaybackPosition = 0;
 
 
     private FirebaseAuth mAuth;
-    private FirebaseDatabase database;
-    private DatabaseReference databaseReference,likeReference;
+    private FirebaseDatabase mDatabase;
+    private DatabaseReference mDatabaseReference,mLikeReference;
 
 
-    private PlayerView playerView;
-    private SimpleExoPlayer player;
+    private PlayerView mPlayerView;
+    private SimpleExoPlayer mPlayer;
 
 
-    private MaterialTextView likeCount;
-    private ShapeableImageView thumbnail;
-    private MaterialTextView description;
-    private MaterialTextView starcast;
-    private MaterialTextView releaseDate;
-    private MaterialTextView title;
-    private ImageView fullscreenButton;
-    private LinearLayout videoDetailsLayout;
-    private RecyclerView recyclerView;
+    private MaterialTextView mLikeCount;
+    private ShapeableImageView mThumbnail;
+    private MaterialTextView mDescription;
+    private MaterialTextView mStarcast;
+    private MaterialTextView mReleaseDate;
+    private MaterialTextView mTitle;
+    private ImageView mFullscreenButton;
+    private LinearLayout mVideoDetailsLayout;
+    private RecyclerView mRecyclerView;
     private VideoAdapter mVideoAdapter;
-    private ImageView likeButton;
+    private ImageView mLikeButton;
 
 
     @Override
@@ -103,45 +103,45 @@ public class VideoPlayerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_player);
 
-        thumbnail = (ShapeableImageView) findViewById(R.id.thumbnail_image);
-        videoDetailsLayout = (LinearLayout) findViewById(R.id.videoDetails);
-        fullscreenButton = (ImageView) findViewById(R.id.exo_fullscreen_icon);
-        description = (MaterialTextView) findViewById(R.id.description);
-        starcast = (MaterialTextView) findViewById(R.id.star_cast);
-        releaseDate = (MaterialTextView) findViewById(R.id.release_date);
-        title = (MaterialTextView) findViewById(R.id.trailer_title);
-        likeButton = (ImageView) findViewById(R.id.like_button);
-        likeCount = (MaterialTextView) findViewById(R.id.like_count);
+        mThumbnail = (ShapeableImageView) findViewById(R.id.thumbnail_image);
+        mVideoDetailsLayout = (LinearLayout) findViewById(R.id.videoDetails);
+        mFullscreenButton = (ImageView) findViewById(R.id.exo_fullscreen_icon);
+        mDescription = (MaterialTextView) findViewById(R.id.description);
+        mStarcast = (MaterialTextView) findViewById(R.id.star_cast);
+        mReleaseDate = (MaterialTextView) findViewById(R.id.release_date);
+        mTitle = (MaterialTextView) findViewById(R.id.trailer_title);
+        mLikeButton = (ImageView) findViewById(R.id.like_button);
+        mLikeCount = (MaterialTextView) findViewById(R.id.like_count);
 
 
-        recyclerView = findViewById(R.id.recommendations_view);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        mRecyclerView = findViewById(R.id.recommendations_view);
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
 
         mAuth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
-        databaseReference = database.getReference(Constants.VIDEOS);
-        likeReference = database.getReference(Constants.LIKES);
+        mDatabase = FirebaseDatabase.getInstance();
+        mDatabaseReference = mDatabase.getReference(Constants.VIDEOS);
+        mLikeReference = mDatabase.getReference(Constants.LIKES);
 
-        likeButton.setOnClickListener(new View.OnClickListener() {
+        mLikeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mProcessLike = true;
                 if(mProcessLike){
-                    likeReference.addValueEventListener(new ValueEventListener() {
+                    mLikeReference.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
                             if(mProcessLike) {
                                 if (snapshot.child(id).hasChild(mAuth.getCurrentUser().getUid())) {
-                                    likesCount--;
+                                    mLikesCount--;
                                     updateLikeCount();
-                                    likeReference.child(id).child(mAuth.getCurrentUser().getUid()).removeValue();
+                                    mLikeReference.child(id).child(mAuth.getCurrentUser().getUid()).removeValue();
                                     mProcessLike = false;
                                 } else {
-                                    likesCount++;
+                                    mLikesCount++;
                                     updateLikeCount();
-                                    likeReference.child(id).child(mAuth.getCurrentUser().getUid()).setValue(mAuth.getCurrentUser().getEmail());
+                                    mLikeReference.child(id).child(mAuth.getCurrentUser().getUid()).setValue(mAuth.getCurrentUser().getEmail());
                                     mProcessLike = false;
                                 }
                             }
@@ -160,24 +160,24 @@ public class VideoPlayerActivity extends AppCompatActivity {
 
 
 
-        fullscreenButton.setOnClickListener(new View.OnClickListener() {
+        mFullscreenButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(fullscreen) {
-                    fullscreenButton.setImageDrawable(ContextCompat.getDrawable(VideoPlayerActivity.this, R.drawable.icon_full_screen_96dp));
+                if(mFullscreen) {
+                    mFullscreenButton.setImageDrawable(ContextCompat.getDrawable(VideoPlayerActivity.this, R.drawable.icon_full_screen_96dp));
                     getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
                     if(getSupportActionBar() != null){
                         getSupportActionBar().show();
                     }
                     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) playerView.getLayoutParams();
+                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) mPlayerView.getLayoutParams();
                     params.width = params.MATCH_PARENT;
                     params.height = (int) ( 250 * getApplicationContext().getResources().getDisplayMetrics().density);
-                    playerView.setLayoutParams(params);
-                    fullscreen = false;
-                    videoDetailsLayout.setVisibility(View.VISIBLE);
+                    mPlayerView.setLayoutParams(params);
+                    mFullscreen = false;
+                    mVideoDetailsLayout.setVisibility(View.VISIBLE);
                 }else{
-                    fullscreenButton.setImageDrawable(ContextCompat.getDrawable(VideoPlayerActivity.this, R.drawable.icon_shrink_96dp));
+                    mFullscreenButton.setImageDrawable(ContextCompat.getDrawable(VideoPlayerActivity.this, R.drawable.icon_shrink_96dp));
                     getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
                             |View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                             |View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
@@ -185,17 +185,17 @@ public class VideoPlayerActivity extends AppCompatActivity {
                         getSupportActionBar().hide();
                     }
                     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) playerView.getLayoutParams();
+                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) mPlayerView.getLayoutParams();
                     params.width = params.MATCH_PARENT;
                     params.height = params.MATCH_PARENT;
-                    playerView.setLayoutParams(params);
-                    fullscreen = true;
-                    videoDetailsLayout.setVisibility(View.GONE);
+                    mPlayerView.setLayoutParams(params);
+                    mFullscreen = true;
+                    mVideoDetailsLayout.setVisibility(View.GONE);
                 }
             }
         });
 
-        playerView = findViewById(R.id.video_view);
+        mPlayerView = findViewById(R.id.video_view);
         Intent intent = getIntent();
         id = intent.getStringExtra("id");
         trailerTitle = intent.getStringExtra("name");
@@ -218,7 +218,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
         hideSystemUi();
-        if ((Util.SDK_INT <= 23 || player == null)) {
+        if ((Util.SDK_INT <= 23 || mPlayer == null)) {
             initializePlayer();
         }
     }
@@ -240,11 +240,11 @@ public class VideoPlayerActivity extends AppCompatActivity {
     }
 
     private void initializePlayer() {
-        if (player == null) {
+        if (mPlayer == null) {
             DefaultTrackSelector trackSelector = new DefaultTrackSelector(this);
             trackSelector.setParameters(
                     trackSelector.buildUponParameters().setMaxVideoSizeSd());
-            player = new SimpleExoPlayer.Builder(this)
+            mPlayer = new SimpleExoPlayer.Builder(this)
                     .setTrackSelector(trackSelector)
                     .build();
         }
@@ -257,10 +257,10 @@ public class VideoPlayerActivity extends AppCompatActivity {
                     DataSource.Factory dataSourceFactory =
                             new DefaultHttpDataSourceFactory("video");
                     MediaSource mediaSource = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(videoUrl));
-                    player.setPlayWhenReady(playWhenReady);
-                    player.seekTo(currentWindow, playbackPosition);
-                    player.addListener(playbackStateListener);
-                    player.prepare(mediaSource,false,false);
+                    mPlayer.setPlayWhenReady(mPlayWhenReady);
+                    mPlayer.seekTo(mCurrentWindow, mPlaybackPosition);
+                    mPlayer.addListener(playbackStateListener);
+                    mPlayer.prepare(mediaSource,false,false);
                 }
             }
 
@@ -270,25 +270,25 @@ public class VideoPlayerActivity extends AppCompatActivity {
             }
         });
 
-        playerView.setPlayer(player);
-        playerView.setKeepScreenOn(true);
+        mPlayerView.setPlayer(mPlayer);
+        mPlayerView.setKeepScreenOn(true);
 
     }
 
     private void releasePlayer() {
-        if (player != null) {
-            playbackPosition = player.getCurrentPosition();
-            currentWindow = player.getCurrentWindowIndex();
-            playWhenReady = player.getPlayWhenReady();
-            player.removeListener(playbackStateListener);
-            player.release();
-            player = null;
+        if (mPlayer != null) {
+            mPlaybackPosition = mPlayer.getCurrentPosition();
+            mCurrentWindow = mPlayer.getCurrentWindowIndex();
+            mPlayWhenReady = mPlayer.getPlayWhenReady();
+            mPlayer.removeListener(playbackStateListener);
+            mPlayer.release();
+            mPlayer = null;
         }
     }
 
     @SuppressLint("InlinedApi")
     private void hideSystemUi() {
-        playerView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+        mPlayerView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
                 | View.SYSTEM_UI_FLAG_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
@@ -325,9 +325,9 @@ public class VideoPlayerActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        if(fullscreen==false) {
+        if(mFullscreen==false) {
             super.onBackPressed();
-            player.stop();
+            mPlayer.stop();
             releasePlayer();
             Intent intent = new Intent(VideoPlayerActivity.this, VideosListActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -335,18 +335,18 @@ public class VideoPlayerActivity extends AppCompatActivity {
             finish();
         }
         else{
-            fullscreenButton.setImageDrawable(ContextCompat.getDrawable(VideoPlayerActivity.this, R.drawable.icon_full_screen_96dp));
+            mFullscreenButton.setImageDrawable(ContextCompat.getDrawable(VideoPlayerActivity.this, R.drawable.icon_full_screen_96dp));
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
             if(getSupportActionBar() != null){
                 getSupportActionBar().show();
             }
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) playerView.getLayoutParams();
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) mPlayerView.getLayoutParams();
             params.width = params.MATCH_PARENT;
             params.height = (int) ( 250 * getApplicationContext().getResources().getDisplayMetrics().density);
-            playerView.setLayoutParams(params);
-            fullscreen = false;
-            videoDetailsLayout.setVisibility(View.VISIBLE);
+            mPlayerView.setLayoutParams(params);
+            mFullscreen = false;
+            mVideoDetailsLayout.setVisibility(View.VISIBLE);
         }
 
     }
@@ -357,13 +357,13 @@ public class VideoPlayerActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
                 for(DataSnapshot snapshots: snapshot.getChildren()) {
-                    likesCount = snapshots.getValue(Videos.class).getLikeCount();
-                    likeCount.setText(Integer.toString(likesCount));
-                    title.setText(snapshots.getValue(Videos.class).getName());
-                    description.setText(snapshots.getValue(Videos.class).getDescription());
-                    releaseDate.setText(snapshots.getValue(Videos.class).getReleaseDate());
-                    starcast.setText("Starring:  "+snapshots.getValue(Videos.class).getStarCast());
-                    Picasso.get().load(snapshots.getValue(Videos.class).getImageUrl()).into(thumbnail);
+                    mLikesCount = snapshots.getValue(Videos.class).getLikeCount();
+                    mLikeCount.setText(Integer.toString(mLikesCount));
+                    mTitle.setText(snapshots.getValue(Videos.class).getName());
+                    mDescription.setText(snapshots.getValue(Videos.class).getDescription());
+                    mReleaseDate.setText(snapshots.getValue(Videos.class).getReleaseDate());
+                    mStarcast.setText("Starring:  "+snapshots.getValue(Videos.class).getStarCast());
+                    Picasso.get().load(snapshots.getValue(Videos.class).getImageUrl()).into(mThumbnail);
                 }
             }
 
@@ -373,20 +373,20 @@ public class VideoPlayerActivity extends AppCompatActivity {
             }
         });
 
-        fetchRecommendationsList();
+        fetchRecommendationsListFromAPI();
     }
 
     public void populateLikeDetails() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String currentUserId = currentUser.getUid();
-        likeReference.addValueEventListener(new ValueEventListener() {
+        mLikeReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
                 if(snapshot.child(id).hasChild(mAuth.getCurrentUser().getUid())){
-                    likeButton.setImageResource(R.drawable.ic_baseline_favorite_24);
+                    mLikeButton.setImageResource(R.drawable.ic_baseline_favorite_24);
                 }
                 else{
-                    likeButton.setImageResource(R.drawable.ic_baseline_favorite_border_24);
+                    mLikeButton.setImageResource(R.drawable.ic_baseline_favorite_border_24);
                 }
             }
 
@@ -399,11 +399,11 @@ public class VideoPlayerActivity extends AppCompatActivity {
 
     public void updateLikeCount() {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference(Constants.VIDEOS);
-        reference.child(id).child("likeCount").setValue(likesCount);
-        likeCount.setText(Integer.toString(likesCount));
+        reference.child(id).child("likeCount").setValue(mLikesCount);
+        mLikeCount.setText(Integer.toString(mLikesCount));
     }
 
-    public void fetchRecommendationsList(){
+    public void fetchRecommendationsListFromAPI(){
         String searchQuery = Constants.RECOMMENDATION_API_MOVIE + trailerTitle;
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                 Request.Method.GET,searchQuery,
@@ -411,8 +411,8 @@ public class VideoPlayerActivity extends AppCompatActivity {
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
-                        Set trailerSet = fetchResults(response,trailerTitle);
-                        fetchFinalRecommendations(trailerSet);
+                        Set trailerSet = parseJsonResult(response,trailerTitle);
+                        filterSearchResults(trailerSet);
                     }
                 },
                 new Response.ErrorListener() {
@@ -437,7 +437,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
         VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonArrayRequest);
     }
 
-    public void fetchFinalRecommendations(Set<String> trailerSet) {
+    public void filterSearchResults(Set<String> trailerSet) {
         ArrayList<Videos> videoList = new ArrayList<>();
 
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference(Constants.VIDEOS);
@@ -450,7 +450,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
                         videoList.add(video);
                 }
                 mVideoAdapter = new VideoAdapter(videoList);
-                recyclerView.setAdapter(mVideoAdapter);
+                mRecyclerView.setAdapter(mVideoAdapter);
 
                 mVideoAdapter.setOnItemClickListener(new VideoAdapter.OnItemClickListener() {
                     public void onItemClick(int position) {
@@ -472,7 +472,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
         });
     }
 
-    public Set<String> fetchResults(JSONArray response,String title){
+    public Set<String> parseJsonResult(JSONArray response,String title){
 
         Set<String> trailerSet = new HashSet<>();
         try {
@@ -487,7 +487,5 @@ public class VideoPlayerActivity extends AppCompatActivity {
 
         }
         return trailerSet;
-
     }
-
 }

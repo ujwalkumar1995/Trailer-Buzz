@@ -23,4 +23,5 @@
     <color name="romance_selected">#00e600</color>
     <color name="edit_text_background">#C0C0C0</color>
     <color name="save_deactivated">#737373</color>
+    <color name="blue_button">#001a4d</color>color>
 </resources>

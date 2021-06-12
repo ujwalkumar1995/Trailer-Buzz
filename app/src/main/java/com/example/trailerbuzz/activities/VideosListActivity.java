@@ -21,20 +21,19 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.example.exoplayer.R;
+import com.example.trailerbuzz.adapters.MainVideoAdapter;
 import com.example.trailerbuzz.adapters.RecommendedVideosAdapter;
-import com.example.trailerbuzz.adapters.VideoAdapter;
-import com.example.trailerbuzz.adapters.ViewHolder;
+import com.example.trailerbuzz.adapters.TopLikedVideosAdapter;
 import com.example.trailerbuzz.helper.Constants;
 import com.example.trailerbuzz.helper.Videos;
 import com.example.trailerbuzz.utilities.VolleySingleton;
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 
@@ -49,19 +48,22 @@ import java.util.Set;
 
 
 public class VideosListActivity extends AppCompatActivity {
-    private DatabaseReference databaseReference;
-    private RecyclerView mRecyclerView;
-    private FirebaseDatabase database;
+
+    private DatabaseReference mDatabaseReference;
+    private FirebaseDatabase mDatabase;
     private MaterialButton signout;
-    private MaterialButton profile;
     private FirebaseAuth mAuth;
-    private ImageView thumbnail;
     private RecyclerView mRecommendedRecyclerView;
     private RecommendedVideosAdapter mRecommendedVideoAdapter;
+    private MainVideoAdapter mMainVideoAdapter;
+    private RecyclerView mMainRecyclerView;
+
+    private TopLikedVideosAdapter mTopLikedVideosAdapter;
+    private RecyclerView mTopLikedRecyclerView;
 
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mGenreDatabase;
-    private HashSet<String> genreSet;
+    private HashSet<String> mGenreSet;
 
 
 
@@ -72,21 +74,20 @@ public class VideosListActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         signout = (MaterialButton) findViewById(R.id.signout);
-        mRecyclerView = findViewById(R.id.video_recycler_view);
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        database = FirebaseDatabase.getInstance();
+        mMainRecyclerView = findViewById(R.id.video_recycler_view);
+        mMainRecyclerView.setHasFixedSize(true);
+        mMainRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        mDatabase = FirebaseDatabase.getInstance();
 
-        genreSet = new HashSet<>();
-        databaseReference = database.getReference(Constants.VIDEOS);
-
-        fetchRecommendedMovies();
-
+        mGenreSet = new HashSet<>();
+        mDatabaseReference = mDatabase.getReference(Constants.VIDEOS);
         mRecommendedRecyclerView = findViewById(R.id.recommended_video_recycler_view);
         mRecommendedRecyclerView.setHasFixedSize(true);
         mRecommendedRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
-
+        mTopLikedRecyclerView = findViewById(R.id.top_liked_recycler_view);
+        mTopLikedRecyclerView.setHasFixedSize(true);
+        mTopLikedRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
 
         signout.setOnClickListener(new View.OnClickListener() {
@@ -101,17 +102,16 @@ public class VideosListActivity extends AppCompatActivity {
 
     }
 
+    //Get the Genres selected by the current logged in user
     private void fetchRecommendedMovies() {
-        mGenreDatabase = database.getReference(Constants.GENRES);
+        mGenreDatabase = mDatabase.getReference(Constants.GENRES);
         mGenreDatabase.child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
 
                 String genres = snapshot.child("Genres").getValue().toString();
                 String genreArray[] = genres.split(",");
-                genreSet = new HashSet<>(Arrays.asList(genreArray));
-                System.out.println("genreSet"+genreArray.length);
-                System.out.println("genre"+genres);
+                mGenreSet = new HashSet<>(Arrays.asList(genreArray));
                 getRecommendationsFromApi();
             }
 
@@ -123,9 +123,10 @@ public class VideosListActivity extends AppCompatActivity {
 
     }
 
+    //Fetch Results from Flask API using volley
     private void getRecommendationsFromApi() {
-
-        for(String genre: genreSet){
+        System.out.println("setsize"+mGenreSet.size());
+        for(String genre: mGenreSet){
             String searchQuery = Constants.RECOMMENDATION_API_GENRE + genre;
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                     Request.Method.GET,searchQuery,
@@ -133,8 +134,8 @@ public class VideosListActivity extends AppCompatActivity {
                     new Response.Listener<JSONArray>() {
                         @Override
                         public void onResponse(JSONArray response) {
-                            HashSet<String> trailers = fetchResults(response,genre);
-                            fetchFinalRecommendations(trailers);
+                            HashSet<String> trailers = parseJsonResults(response,genre);
+                            setFinalRecommendations(trailers);
                         }
                     },
                     new Response.ErrorListener() {
@@ -160,7 +161,8 @@ public class VideosListActivity extends AppCompatActivity {
         }
     }
 
-    private void fetchFinalRecommendations(HashSet<String> trailers) {
+    //Set Trailers based on Genre in Recommendations Recycler View
+    private void setFinalRecommendations(HashSet<String> trailers) {
         ArrayList<Videos> videoList = new ArrayList<>();
 
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference(Constants.VIDEOS);
@@ -195,7 +197,8 @@ public class VideosListActivity extends AppCompatActivity {
         });
     }
 
-    private HashSet<String> fetchResults(JSONArray response, String genre) {
+    //Fetch Movies Based on Genre from Flask API
+    private HashSet<String> parseJsonResults(JSONArray response, String genre) {
         HashSet<String> trailerSet = new HashSet<>();
         try {
             for (int i = 0; i < response.length(); i++) {
@@ -212,39 +215,76 @@ public class VideosListActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        populateVideosFromFirebase();
+        fetchRecommendedMovies();
+        populateTopLikedVideos();
+    }
 
-        FirebaseRecyclerOptions<Videos> options =
-                new FirebaseRecyclerOptions.Builder<Videos>()
-                .setQuery(databaseReference,Videos.class)
-                .build();
-        FirebaseRecyclerAdapter<Videos, ViewHolder> firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<Videos, ViewHolder>(options) {
+    public void populateVideosFromFirebase(){
+
+        ArrayList<Videos> mainVideoList = new ArrayList<>();
+        Query topVideos = FirebaseDatabase.getInstance().getReference(Constants.VIDEOS).orderByChild("id").limitToFirst(6);
+        topVideos.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            protected void onBindViewHolder(@NonNull @NotNull ViewHolder holder, int position, @NonNull @NotNull Videos model) {
-                holder.setExoPlayer(getApplication(),model.getName(),model.getUrl(),model.getImageUrl(),model.getId());
-
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(VideosListActivity.this, VideoPlayerActivity.class);
-                        intent.putExtra("id", model.getId());
-                        intent.putExtra("name",model.getName());
+            public void onDataChange(DataSnapshot snapshot) {
+                for(DataSnapshot children:snapshot.getChildren()){
+                    Videos video = children.getValue(Videos.class);
+                    mainVideoList.add(video);
+                }
+                mMainVideoAdapter = new MainVideoAdapter(mainVideoList);
+                mMainRecyclerView.setAdapter(mMainVideoAdapter);
+                mMainVideoAdapter.setOnItemClickListener(new MainVideoAdapter.OnItemClickListener() {
+                    public void onItemClick(int position) {
+                        Videos video = mainVideoList.get(position);
+                        Intent intent = new Intent(VideosListActivity.this,VideoPlayerActivity.class);
+                        intent.putExtra("id",video.getId());
+                        intent.putExtra("name",video.getName());
                         startActivity(intent);
                         finish();
                     }
                 });
             }
 
-            @NonNull
-            @NotNull
             @Override
-            public ViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.item,parent,false);
-                return new ViewHolder(view);
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
             }
-        };
-        firebaseRecyclerAdapter.startListening();
-        mRecyclerView.setAdapter(firebaseRecyclerAdapter);
+        });
+
+
+    }
+
+    public void populateTopLikedVideos(){
+
+        ArrayList<Videos> topLikedVideos = new ArrayList<>();
+        Query topVideos = FirebaseDatabase.getInstance().getReference(Constants.VIDEOS).orderByChild("likeCount").limitToLast(6);
+        topVideos.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                for(DataSnapshot children:snapshot.getChildren()){
+                    Videos video = children.getValue(Videos.class);
+                    topLikedVideos.add(video);
+                }
+                mTopLikedVideosAdapter = new TopLikedVideosAdapter(topLikedVideos);
+                mTopLikedRecyclerView.setAdapter(mTopLikedVideosAdapter);
+                mTopLikedVideosAdapter.setOnItemClickListener(new TopLikedVideosAdapter.OnItemClickListener() {
+                    public void onItemClick(int position) {
+                        Videos video = topLikedVideos.get(position);
+                        Intent intent = new Intent(VideosListActivity.this,VideoPlayerActivity.class);
+                        intent.putExtra("id",video.getId());
+                        intent.putExtra("name",video.getName());
+                        startActivity(intent);
+                        finish();
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+            }
+        });
+
 
     }
 }
