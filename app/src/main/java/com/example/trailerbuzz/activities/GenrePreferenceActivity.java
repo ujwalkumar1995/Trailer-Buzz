@@ -134,11 +134,14 @@ public class GenrePreferenceActivity extends AppCompatActivity {
                         startActivity(intent);
                         finish();
                     }
+                    else{
+                        mProcessGenre = false;
+                    }
                 }
 
                 @Override
                 public void onCancelled(@NonNull @NotNull DatabaseError error) {
-
+                    mProcessGenre = false;
                 }
             });
         }

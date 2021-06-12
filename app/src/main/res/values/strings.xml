@@ -25,4 +25,7 @@
     <string name="comedy">Comedy</string>
     <string name="action">Action</string>
 
+    <string name="nav_open">Open</string>
+    <string name="nav_close">Close</string>
+
 </resources>

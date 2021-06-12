@@ -19,8 +19,12 @@
 
     </style>
 
+
     <style name="ShapeAppearanceOverlay.App.CornerSize10Percent" parent="">
         <item name="cornerSize">10%</item>
+    </style>
+    <style name="NavFontStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">sans-serif-smallcaps</item>
     </style>
 
 </resources>

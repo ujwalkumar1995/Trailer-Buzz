@@ -13,7 +13,7 @@
         android:theme="@style/Theme.Design.NoActionBar" ></activity>
         <activity
             android:name="com.example.trailerbuzz.activities.ProfileActivity"
-            android:theme="@style/Theme.Design.NoActionBar" />
+            android:theme="@style/Theme.VideoHut" />
         <activity
             android:name="com.example.trailerbuzz.activities.HomeActivity"
             android:theme="@style/LoginTheme">

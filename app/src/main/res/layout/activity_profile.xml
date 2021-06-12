@@ -80,10 +80,13 @@
 
     <Button
         android:layout_width="200dp"
+        android:padding="3dp"
         android:layout_height="wrap_content"
         android:background="@drawable/rounded_button"
         android:textColor="@color/white"
         android:text="Update"
+        android:textAllCaps="true"
+        android:textAlignment="center"
         android:textSize="20sp"
         android:layout_marginTop="15dp"
         android:id="@+id/update_button">

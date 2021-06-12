@@ -1,4 +1,4 @@
-package com.example.videohut;
+package com.example.trailerbuzz;
 
 import android.content.Context;
 
