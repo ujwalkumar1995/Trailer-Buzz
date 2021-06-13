@@ -33,14 +33,17 @@ import org.jetbrains.annotations.NotNull;
 
 public class LoginActivity extends AppCompatActivity {
 
+    //Login Details
     private EditText mUsername;
     private EditText mLoginPassword;
     private Button mLoginButton;
     private TextView mRegisterText;
-    private FirebaseAuth mAuth;
     private LinearProgressIndicator mProgressBar;
     private CheckBox mShowPassword;
     private TextView mForgotPassword;
+
+    //Firebase
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +58,7 @@ public class LoginActivity extends AppCompatActivity {
         mShowPassword = (CheckBox) findViewById(R.id.password_checkbox);
         mForgotPassword = (TextView) findViewById(R.id.forget_password);
 
+        //Show Pasword based on checkbox selection
         mShowPassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -67,6 +71,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        //Login the user in case the user exists
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,6 +97,8 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+
+        //Direct to register activity
         mRegisterText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -101,6 +108,8 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+
+        //Handle Forget Password Functionality
         mForgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -110,6 +119,19 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(currentUser != null){
+            sendToVideosList();
+        }
+
+    }
+
+    //Dialog to handle forget password
     private void openForgotPasswordDialog() {
         LayoutInflater layoutInflater = LayoutInflater.from(getApplicationContext());
         View promptsView = layoutInflater.inflate(R.layout.forgot_password_dialog, null);
@@ -154,17 +176,6 @@ public class LoginActivity extends AppCompatActivity {
         alertDialog.getWindow().setBackgroundDrawableResource(R.color.white);
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-
-        if(currentUser != null){
-            sendToVideosList();
-        }
-
-    }
 
     public void sendToVideosList(){
         Intent intent = new Intent(LoginActivity.this, VideosListActivity.class);

@@ -26,6 +26,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterActivity extends AppCompatActivity {
 
+    //User Details
     private EditText mUserEmail;
     private EditText mFirstName;
     private EditText mLastName;
@@ -37,6 +38,7 @@ public class RegisterActivity extends AppCompatActivity {
     private LinearProgressIndicator mProgressBar;
     private CheckBox mShowPassword;
 
+    //Firebase
     private FirebaseAuth mAuth;
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mDatabase;
@@ -61,7 +63,7 @@ public class RegisterActivity extends AppCompatActivity {
         mProgressBar = (LinearProgressIndicator) findViewById(R.id.register_progress_bar);
         mShowPassword = (CheckBox) findViewById(R.id.password_checkbox);
 
-
+        //Handle Click on Show password checkbox
         mShowPassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -76,6 +78,7 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
+        //Handle Click on Register Button
         mRegisterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -115,13 +118,6 @@ public class RegisterActivity extends AppCompatActivity {
 
     }
 
-    private void sendToGenrePreferenceActivity(Users user) {
-        Intent intent = new Intent(RegisterActivity.this, GenrePreferenceActivity.class);
-        intent.putExtra("user", user);
-        startActivity(intent);
-        finish();
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -131,6 +127,13 @@ public class RegisterActivity extends AppCompatActivity {
         if(currentUser != null){
             sendToVideosList();
         }
+    }
+
+    public void sendToGenrePreferenceActivity(Users user) {
+        Intent intent = new Intent(RegisterActivity.this, GenrePreferenceActivity.class);
+        intent.putExtra("user", user);
+        startActivity(intent);
+        finish();
     }
 
     public void sendToVideosList(){

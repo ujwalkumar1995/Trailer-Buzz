@@ -7,14 +7,16 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,12 +30,12 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.example.exoplayer.R;
 import com.example.trailerbuzz.adapters.MainVideoAdapter;
 import com.example.trailerbuzz.adapters.RecommendedVideosAdapter;
+import com.example.trailerbuzz.adapters.SearchVideoAdapter;
 import com.example.trailerbuzz.adapters.TopLikedVideosAdapter;
 import com.example.trailerbuzz.helper.Constants;
 import com.example.trailerbuzz.helper.Users;
 import com.example.trailerbuzz.helper.Videos;
 import com.example.trailerbuzz.utilities.VolleySingleton;
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -52,35 +54,52 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Set;
 
 
 public class VideosListActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
-    //private DatabaseReference mDatabaseReference;
+    //Firebase database and auth
     private FirebaseDatabase mDatabase;
     private FirebaseAuth mAuth;
+    private DatabaseReference mGenreDatabase;
+
+    //Recommended Recycler View
     private RecyclerView mRecommendedRecyclerView;
     private RecommendedVideosAdapter mRecommendedVideoAdapter;
+
+    //Top Recycler View
     private MainVideoAdapter mMainVideoAdapter;
     private RecyclerView mMainRecyclerView;
 
+    //Trending Recycler View
     private TopLikedVideosAdapter mTopLikedVideosAdapter;
     private RecyclerView mTopLikedRecyclerView;
 
-    private FirebaseDatabase mFirebaseDatabase;
-    private DatabaseReference mGenreDatabase;
-    private HashSet<String> mGenreSet;
+    //Search Recycler View
+    private SearchVideoAdapter mSearchVideoAdapter;
+    private RecyclerView mSearchRecyclerView;
 
-    public DrawerLayout drawerLayout;
-    public ActionBarDrawerToggle actionBarDrawerToggle;
+    //Progress Bar on Load
+    private ProgressBar mProgressBar;
+    private LinearLayout mMainContent;
 
-    private String firstName;
-    private String lastName;
-    private String phoneNo;
+    //Drawer Layout
+    public DrawerLayout mDrawerLayout;
+    public ActionBarDrawerToggle mActionBarDrawerToggle;
 
+    //Swipe functionality
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+
+    //Populate User Details in Nav Drawer
+    private String mFirstName;
+    private String mLastName;
+    private String mPhoneNo;
+
+    //Variables to store recommended trailers
     private HashSet<String> trailerSet;
     private ArrayList<Videos> videoList;
+    private HashSet<String> mGenreSet;
+    private int totalGenreCount= Constants.GENRECOUNT;
 
 
 
@@ -90,12 +109,25 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
         setContentView(R.layout.activity_videos_list);
 
         mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance();
+
+        mProgressBar = findViewById(R.id.progress_bar);
+        mMainContent = findViewById(R.id.main_list_layout);
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.swiperefresh);
+
+        mDrawerLayout = findViewById(R.id.my_drawer_layout);
+        mActionBarDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.nav_open, R.string.nav_close);
+
+        trailerSet = new HashSet<>();
+        videoList = new ArrayList<>();
+
+        mGenreSet = new HashSet<>();
+
         mMainRecyclerView = findViewById(R.id.video_recycler_view);
         mMainRecyclerView.setHasFixedSize(true);
         mMainRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        mDatabase = FirebaseDatabase.getInstance();
 
-        mGenreSet = new HashSet<>();
         mRecommendedRecyclerView = findViewById(R.id.recommended_video_recycler_view);
         mRecommendedRecyclerView.setHasFixedSize(true);
         mRecommendedRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -104,34 +136,99 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
         mTopLikedRecyclerView.setHasFixedSize(true);
         mTopLikedRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
-        drawerLayout = findViewById(R.id.my_drawer_layout);
-        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.nav_open, R.string.nav_close);
-
-        trailerSet = new HashSet<>();
-        videoList = new ArrayList<>();
+        mSearchRecyclerView = findViewById(R.id.search_recycler_view);
+        mSearchRecyclerView.setHasFixedSize(true);
+        mSearchRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
 
-        drawerLayout.addDrawerListener(actionBarDrawerToggle);
-        actionBarDrawerToggle.syncState();
+        mDrawerLayout.addDrawerListener(mActionBarDrawerToggle);
+        mActionBarDrawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        setNavigationViewListener();
 
+        //Check for Swipe Gesture
+        mSwipeRefreshLayout.setOnRefreshListener(
+                new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        System.out.println("Refreshed");
+                        populateVideosFromFirebase();
+                        populateTopLikedVideos();
+                        fetchRecommendedMovies();
+                        mSwipeRefreshLayout.setRefreshing(false);
+                    }
+                }
+        );
+        setNavigationViewListener();
     }
 
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        populateVideosFromFirebase();
+        populateTopLikedVideos();
+        populateUserDetails();
+        fetchRecommendedMovies();
+    }
+
+    //Handle Search Functionality
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.search_bar,menu);
+        MenuItem menuItem = menu.findItem(R.id.search_icon);
+        SearchView searchView = (SearchView) menuItem.getActionView();
+        searchView.setQueryHint("Search Here!");
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                newText = newText.toLowerCase();
+                fetchSearchedMovies(newText);
+                return false;
+            }
+        });
+
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                mMainContent.setVisibility(View.VISIBLE);
+                mSearchRecyclerView.setVisibility(View.GONE);
+                mSearchRecyclerView.setAdapter(null);
+                return false;
+            }
+        });
+
+        searchView.setOnSearchClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMainContent.setVisibility(View.GONE);
+                mSearchRecyclerView.setVisibility(View.VISIBLE);
+            }
+        });
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+
+    //Initialize Navigation Drawer
     private void setNavigationViewListener() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
     }
 
-
+    //Handle Clicks in Navigation Drawer
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
 
         if (id == R.id.nav_logout) {
-            System.out.println("Inside");
             mAuth.signOut();
-            Intent intent = new Intent(VideosListActivity.this, RegisterActivity.class);
+            Intent intent = new Intent(VideosListActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
         } else if (id == R.id.nav_profile) {
@@ -145,6 +242,16 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
         return true;
     }
 
+    //Handle Drawer open and close
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        if (mActionBarDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
     //Get the Genres selected by the current logged in user
     private void fetchRecommendedMovies() {
@@ -154,7 +261,6 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
 
                 String genres = snapshot.child("Genres").getValue().toString();
-                System.out.println("this");
                 String genreArray[] = genres.split(",");
                 mGenreSet = new HashSet<>(Arrays.asList(genreArray));
                 getRecommendationsFromApi();
@@ -168,18 +274,10 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
 
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
-        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     //Fetch Results from Flask API using volley
     private void getRecommendationsFromApi() {
-        System.out.println("videosize3");
         for(String genre: mGenreSet){
             String searchQuery = Constants.RECOMMENDATION_API_GENRE + genre;
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
@@ -188,17 +286,21 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
                     new Response.Listener<JSONArray>() {
                         @Override
                         public void onResponse(JSONArray response) {
-                            trailerSet = parseJsonResults(response, genre);
-                            System.out.println(trailerSet.size()+"trailerset");
-                            if(trailerSet.size()!=0) {
+                            totalGenreCount--;
+                            parseJsonResults(response, genre);
+                            if(totalGenreCount==0)
                                 setFinalRecommendations(trailerSet);
-                            }
+
 
                         }
                     },
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
+                            totalGenreCount--;
+                            if(totalGenreCount==0)
+                                setFinalRecommendations(trailerSet);
+
                             if (error instanceof NoConnectionError ||
                                     error instanceof NetworkError ||
                                     error instanceof TimeoutError) {
@@ -217,50 +319,11 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
             );
             VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonArrayRequest);
         }
-    }
 
-    //Set Trailers based on Genre in Recommendations Recycler View
-    private void setFinalRecommendations(HashSet<String> trailers) {
-
-        System.out.println("videosize1");
-
-        Query getVideos = mDatabase.getReference(Constants.VIDEOS).orderByChild("id");
-        //FirebaseDatabase.getInstance().getReference(Constants.VIDEOS).addListenerForSingleValueEvent(new ValueEventListener() {
-        getVideos.addListenerForSingleValueEvent(new ValueEventListener(){
-            @Override
-            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                for(DataSnapshot children:snapshot.getChildren()){
-                    Videos video = children.getValue(Videos.class);
-                    if(trailers.contains(video.getSearchString()))
-                        videoList.add(video);
-                }
-                System.out.println(videoList.size()+"videosize");
-                mRecommendedVideoAdapter = new RecommendedVideosAdapter(videoList);
-                mRecommendedRecyclerView.setAdapter(mRecommendedVideoAdapter);
-
-                mRecommendedVideoAdapter.setOnItemClickListener(new RecommendedVideosAdapter.OnItemClickListener() {
-                    public void onItemClick(int position) {
-                        Videos video = videoList.get(position);
-                        Intent intent = new Intent(VideosListActivity.this,VideoPlayerActivity.class);
-                        intent.putExtra("id",video.getId());
-                        intent.putExtra("name",video.getName());
-                        startActivity(intent);
-                        finish();
-                    }
-                });
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull @NotNull DatabaseError error) {
-
-            }
-        });
     }
 
     //Fetch Movies Based on Genre from Flask API
-    private HashSet<String> parseJsonResults(JSONArray response, String genre) {
-        HashSet<String> trailerSet = new HashSet<>();
+    public HashSet<String> parseJsonResults(JSONArray response, String genre) {
         try {
             for (int i = 0; i < response.length(); i++) {
                 JSONObject responseObj = response.getJSONObject(i);
@@ -273,15 +336,73 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
         return trailerSet;
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        populateVideosFromFirebase();
-        fetchRecommendedMovies();
-        populateTopLikedVideos();
-        populateUserDetails();
+    //Set Trailers based on Genre in Recommendations Recycler View
+    private void setFinalRecommendations(HashSet<String> trailers) {
+        Query getVideos = mDatabase.getReference(Constants.VIDEOS).orderByChild("id");
+        getVideos.addListenerForSingleValueEvent(new ValueEventListener(){
+            @Override
+            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                for(DataSnapshot children:snapshot.getChildren()){
+                    Videos video = children.getValue(Videos.class);
+                    if(trailers.contains(video.getSearchString()))
+                        videoList.add(video);
+                }
+                mRecommendedVideoAdapter = new RecommendedVideosAdapter(videoList);
+                mRecommendedRecyclerView.setAdapter(mRecommendedVideoAdapter);
+
+                mMainContent.setVisibility(View.VISIBLE);
+                mProgressBar.setVisibility(View.GONE);
+
+                mRecommendedVideoAdapter.setOnItemClickListener(new RecommendedVideosAdapter.OnItemClickListener() {
+                    public void onItemClick(int position) {
+                        Videos video = videoList.get(position);
+                        startVideoPlayerActivity(video);
+                    }
+                });
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+            }
+        });
     }
 
+    //Fetch searched movies based on query string
+    private void fetchSearchedMovies(String searchString) {
+        if(searchString.equals("")) {
+            mSearchRecyclerView.setAdapter(null);
+            return;
+        }
+        ArrayList<Videos> mainVideoList = new ArrayList<>();
+        Query topVideos = FirebaseDatabase.getInstance().getReference(Constants.VIDEOS).orderByChild("searchString").startAt(searchString).endAt(searchString+"\uf8ff");
+        topVideos.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                for(DataSnapshot children:snapshot.getChildren()){
+                    Videos video = children.getValue(Videos.class);
+                    mainVideoList.add(video);
+                }
+                mSearchVideoAdapter = new SearchVideoAdapter(mainVideoList);
+                mSearchRecyclerView.setAdapter(mSearchVideoAdapter);
+                mSearchVideoAdapter.setOnItemClickListener(new SearchVideoAdapter.OnItemClickListener() {
+                    public void onItemClick(int position) {
+                        Videos video = mainVideoList.get(position);
+                        startVideoPlayerActivity(video);
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+            }
+        });
+    }
+
+
+    //Populate user details in navigationd drawer
     private void populateUserDetails() {
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser user = mAuth.getCurrentUser();
@@ -292,16 +413,16 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
         userDatabase.child(uId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                firstName = snapshot.getValue(Users.class).getFirstName();
-                lastName = snapshot.getValue(Users.class).getLastName();
-                phoneNo = snapshot.getValue(Users.class).getPhone();
+                mFirstName = snapshot.getValue(Users.class).getFirstName();
+                mLastName = snapshot.getValue(Users.class).getLastName();
+                mPhoneNo = snapshot.getValue(Users.class).getPhone();
 
                 NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
                 View headerView =  navigationView.getHeaderView(0);
                 TextView nav_name = (TextView) headerView.findViewById(R.id.full_name);
-                nav_name.setText(firstName+" "+lastName);
+                nav_name.setText(mFirstName+" "+mLastName);
                 TextView nav_phone = (TextView) headerView.findViewById(R.id.phone_no);
-                nav_phone.setText(phoneNo);
+                nav_phone.setText(mPhoneNo);
             }
 
             @Override
@@ -311,6 +432,7 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
         });
     }
 
+    //Populate vidoes in top most recycler view
     public void populateVideosFromFirebase(){
 
         ArrayList<Videos> mainVideoList = new ArrayList<>();
@@ -327,15 +449,10 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
                 mMainVideoAdapter.setOnItemClickListener(new MainVideoAdapter.OnItemClickListener() {
                     public void onItemClick(int position) {
                         Videos video = mainVideoList.get(position);
-                        Intent intent = new Intent(VideosListActivity.this,VideoPlayerActivity.class);
-                        intent.putExtra("id",video.getId());
-                        intent.putExtra("name",video.getName());
-                        startActivity(intent);
-                        finish();
+                        startVideoPlayerActivity(video);
                     }
                 });
             }
-
             @Override
             public void onCancelled(@NonNull @NotNull DatabaseError error) {
 
@@ -345,6 +462,7 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
 
     }
 
+    //Populate most liked videos
     public void populateTopLikedVideos(){
 
         ArrayList<Videos> topLikedVideos = new ArrayList<>();
@@ -361,11 +479,7 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
                 mTopLikedVideosAdapter.setOnItemClickListener(new TopLikedVideosAdapter.OnItemClickListener() {
                     public void onItemClick(int position) {
                         Videos video = topLikedVideos.get(position);
-                        Intent intent = new Intent(VideosListActivity.this,VideoPlayerActivity.class);
-                        intent.putExtra("id",video.getId());
-                        intent.putExtra("name",video.getName());
-                        startActivity(intent);
-                        finish();
+                        startVideoPlayerActivity(video);
                     }
                 });
             }
@@ -375,7 +489,14 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
 
             }
         });
+    }
 
-
+    //Start video player activity
+    public void startVideoPlayerActivity(Videos video){
+        Intent intent = new Intent(VideosListActivity.this,VideoPlayerActivity.class);
+        intent.putExtra("id",video.getId());
+        intent.putExtra("name",video.getName());
+        startActivity(intent);
+        finish();
     }
 }

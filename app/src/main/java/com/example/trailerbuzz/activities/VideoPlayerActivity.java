@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.android.volley.NetworkError;
@@ -65,7 +66,13 @@ public class VideoPlayerActivity extends AppCompatActivity {
     private PlaybackStateListener playbackStateListener;
     private static final String TAG = VideoPlayerActivity.class.getName();
 
+    //Firebase
+    private FirebaseAuth mAuth;
+    private FirebaseDatabase mDatabase;
+    private DatabaseReference mLikeReference;
 
+
+    //Player related variables
     private String trailerTitle = "";
     private boolean mFullscreen = false;
     private boolean mPlayWhenReady = true;
@@ -75,16 +82,15 @@ public class VideoPlayerActivity extends AppCompatActivity {
     private int mCurrentWindow = 0;
     private long mPlaybackPosition = 0;
 
-
-    private FirebaseAuth mAuth;
-    private FirebaseDatabase mDatabase;
-    private DatabaseReference mDatabaseReference,mLikeReference;
-
-
+    //Exoplayer
     private PlayerView mPlayerView;
     private SimpleExoPlayer mPlayer;
 
+    //Progress Bar
+    private ProgressBar mProgressBar;
+    private LinearLayout mMainContent;
 
+    //Video Details and Buttons
     private MaterialTextView mLikeCount;
     private ShapeableImageView mThumbnail;
     private MaterialTextView mDescription;
@@ -113,6 +119,8 @@ public class VideoPlayerActivity extends AppCompatActivity {
         mLikeButton = (ImageView) findViewById(R.id.like_button);
         mLikeCount = (MaterialTextView) findViewById(R.id.like_count);
 
+        mProgressBar = findViewById(R.id.progress_bar);
+        mMainContent = findViewById(R.id.main_layout);
 
         mRecyclerView = findViewById(R.id.recommendations_view);
         mRecyclerView.setHasFixedSize(true);
@@ -121,9 +129,10 @@ public class VideoPlayerActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance();
-        mDatabaseReference = mDatabase.getReference(Constants.VIDEOS);
         mLikeReference = mDatabase.getReference(Constants.LIKES);
 
+
+        //Hanlde clicks on like button
         mLikeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -159,7 +168,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
 
 
 
-
+        //Handle click on FullScreen Button
         mFullscreenButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -195,7 +204,9 @@ public class VideoPlayerActivity extends AppCompatActivity {
             }
         });
 
+
         mPlayerView = findViewById(R.id.video_view);
+
         Intent intent = getIntent();
         id = intent.getStringExtra("id");
         trailerTitle = intent.getStringExtra("name");
@@ -322,6 +333,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
         }
     }
 
+    //Handle back pressed when we are in fullscreen vs when we are not in fullscreen
     @Override
     public void onBackPressed() {
 
@@ -351,6 +363,8 @@ public class VideoPlayerActivity extends AppCompatActivity {
 
     }
 
+
+    //Populate details of the trailer
     public void populateTrailerDetails() {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference(Constants.VIDEOS);
         reference.orderByChild("id").equalTo(id).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -376,6 +390,8 @@ public class VideoPlayerActivity extends AppCompatActivity {
         fetchRecommendationsListFromAPI();
     }
 
+
+    //Populate Like Count of the video
     public void populateLikeDetails() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String currentUserId = currentUser.getUid();
@@ -397,12 +413,14 @@ public class VideoPlayerActivity extends AppCompatActivity {
         });
     }
 
+    //Update Like count when user clicks on the like button
     public void updateLikeCount() {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference(Constants.VIDEOS);
         reference.child(id).child("likeCount").setValue(mLikesCount);
         mLikeCount.setText(Integer.toString(mLikesCount));
     }
 
+    //Fetch Similar movies from Flask API using Volley
     public void fetchRecommendationsListFromAPI(){
         String searchQuery = Constants.RECOMMENDATION_API_MOVIE + trailerTitle;
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
@@ -437,6 +455,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
         VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonArrayRequest);
     }
 
+    //Filter Search Results
     public void filterSearchResults(Set<String> trailerSet) {
         ArrayList<Videos> videoList = new ArrayList<>();
 
@@ -451,6 +470,9 @@ public class VideoPlayerActivity extends AppCompatActivity {
                 }
                 mVideoAdapter = new VideoAdapter(videoList);
                 mRecyclerView.setAdapter(mVideoAdapter);
+
+                mMainContent.setVisibility(View.VISIBLE);
+                mProgressBar.setVisibility(View.GONE);
 
                 mVideoAdapter.setOnItemClickListener(new VideoAdapter.OnItemClickListener() {
                     public void onItemClick(int position) {
@@ -472,6 +494,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
         });
     }
 
+    //Parse Json Array returned by Volley
     public Set<String> parseJsonResult(JSONArray response,String title){
 
         Set<String> trailerSet = new HashSet<>();

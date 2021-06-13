@@ -14,7 +14,7 @@
 
     <style name="LoginTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="windowActionBar">false</item>
-        <item name="colorPrimaryDark">@color/mid</item>
+        <item name="colorPrimaryDark">@color/black</item>
         <item name="windowNoTitle">false</item>
 
     </style>

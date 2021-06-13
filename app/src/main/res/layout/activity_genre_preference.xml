@@ -47,7 +47,7 @@
             android:textColor="@color/silver"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="30dp"
-            android:text="Please select 3 Categories.">
+            android:text="@string/please_select_3_categories">
         </TextView>
 
         <LinearLayout

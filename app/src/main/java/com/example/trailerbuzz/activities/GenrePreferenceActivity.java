@@ -29,33 +29,44 @@ import org.jetbrains.annotations.NotNull;
 
 public class GenrePreferenceActivity extends AppCompatActivity {
 
+    //Firebase
+    private FirebaseAuth mAuth;
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference mDatabase,mGenreDatabase;
+
+    //Buttons for different Genres
     private Button mActionButton;
     private Button mComedyButton;
     private Button mHorrorButton;
     private Button mRomanceButton;
-    private Button mSavePreferences;
-    private Users user;
-    private LinearProgressIndicator mProgressBar;
 
+    //Boolean variable to check toggle of buttons
     private boolean isActionSelected = false;
     private boolean isComedySelected = false;
     private boolean isHorrorSelected = false;
     private boolean isRomanceSelected = false;
+
+    private Button mSavePreferences;
+    private LinearProgressIndicator mProgressBar;
+
     private boolean mProcessGenre = false;
     private int genreCount = 0;
 
-    private FirebaseAuth mAuth;
-    private FirebaseDatabase mFirebaseDatabase;
-    private DatabaseReference mDatabase,mGenreDatabase;
+    //Store user details
+    private Users user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_genre_preference);
 
+        mAuth = FirebaseAuth.getInstance();
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mDatabase = mFirebaseDatabase.getReference(Constants.USERS);
+        mGenreDatabase = mFirebaseDatabase.getReference(Constants.GENRES);
+
         Intent intent = getIntent();
         user = (Users)intent.getSerializableExtra("user");
-        System.out.println("user"+user);
 
         mProgressBar = (LinearProgressIndicator) findViewById(R.id.progress_bar);
         mActionButton = (Button)  findViewById(R.id.action_button);
@@ -66,11 +77,7 @@ public class GenrePreferenceActivity extends AppCompatActivity {
 
         mSavePreferences.setEnabled(false);
 
-        mAuth = FirebaseAuth.getInstance();
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mDatabase = mFirebaseDatabase.getReference(Constants.USERS);
-        mGenreDatabase = mFirebaseDatabase.getReference(Constants.GENRES);
-
+        //Save Genre Preferences Against User
         mSavePreferences.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -103,6 +110,8 @@ public class GenrePreferenceActivity extends AppCompatActivity {
 
     }
 
+
+    //Generate Genre String based on selection
     private void generatePreferences() {
         StringBuilder sb = new StringBuilder();
         if(isActionSelected){
@@ -148,7 +157,8 @@ public class GenrePreferenceActivity extends AppCompatActivity {
 
     }
 
-    @SuppressLint("ResourceAsColor")
+
+
     public void horrorButtonClicked(View view){
         isHorrorSelected = !isHorrorSelected;
         if(isHorrorSelected){
@@ -201,9 +211,10 @@ public class GenrePreferenceActivity extends AppCompatActivity {
         checkSaveButton();
     }
 
+
+    //Enable Save Button when three genres are selected
     private void checkSaveButton() {
-        System.out.println(genreCount+"genreCount");
-        if(genreCount==3){
+        if(genreCount==Constants.GENRECOUNT){
             mSavePreferences.setEnabled(true);
             mSavePreferences.setBackgroundResource(R.drawable.save_activated);
         }

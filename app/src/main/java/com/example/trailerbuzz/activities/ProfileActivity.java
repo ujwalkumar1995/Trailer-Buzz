@@ -27,12 +27,14 @@ import org.jetbrains.annotations.NotNull;
 
 public class ProfileActivity extends AppCompatActivity {
 
+    //Profile Details
     private Button mUpdateButton;
     private TextView mFirstName;
     private TextView mLastName;
     private TextView mPhoneNo;
     private LinearProgressIndicator mProgressBar;
 
+    //Firebase
     private FirebaseAuth mAuth;
     private FirebaseDatabase mDatabase;
     private DatabaseReference mDatabaseReference;
@@ -57,6 +59,8 @@ public class ProfileActivity extends AppCompatActivity {
 
         populateUserDetails();
 
+
+        //Update Profile Details
         mUpdateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -89,6 +93,7 @@ public class ProfileActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    //Populate User Details from firebase
     private void populateUserDetails() {
 
         FirebaseUser user = mAuth.getCurrentUser();

@@ -14,6 +14,5 @@ public class Constants {
     public static final String HORROR = "Horror";
     public static final String ROMANCE = "Romance";
 
-
-
+    public static final int GENRECOUNT = 3;
 }

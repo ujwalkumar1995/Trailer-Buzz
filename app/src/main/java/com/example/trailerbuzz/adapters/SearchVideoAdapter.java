@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
-public class MainVideoAdapter extends RecyclerView.Adapter<MainVideoAdapter.VideoViewHolder>{
+public class SearchVideoAdapter extends RecyclerView.Adapter<SearchVideoAdapter.VideoViewHolder>{
 
     private ArrayList<Videos> mVideoList;
     private OnItemClickListener mListener;
@@ -34,12 +34,12 @@ public class MainVideoAdapter extends RecyclerView.Adapter<MainVideoAdapter.Vide
     @NotNull
     @Override
     public VideoViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.main_video_item,parent,false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.search_view_item,parent,false);
         VideoViewHolder videoViewHolder = new VideoViewHolder(view,mListener);
         return videoViewHolder;
     }
 
-    public MainVideoAdapter(ArrayList<Videos> videos){
+    public SearchVideoAdapter(ArrayList<Videos> videos){
         this.mVideoList = videos;
     }
     @Override
@@ -49,6 +49,8 @@ public class MainVideoAdapter extends RecyclerView.Adapter<MainVideoAdapter.Vide
         Picasso.get().load(videoUri).into(holder.mImageView);
         holder.mTextView.setText(video.getName());
     }
+
+
 
     @Override
     public int getItemCount() {

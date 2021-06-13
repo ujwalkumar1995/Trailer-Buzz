@@ -2,30 +2,45 @@
     <string name="app_name">Trailer Buzz</string>
     <string name="connection_unavailable">Connection Unavailabe</string>
     <string name="service_unavailable">Service Unavailabe</string>
+
+    <!--Login Activity-->
     <string name="login_text"><u>Already have an Account? Login.</u></string>
-    <string name="register_text"><u>"Don't have an Account? Register."</u></string>
     <string name="forget_password"><u>"Forgot Password?"</u></string>
     <string name="please_login_to_continue">Please Login to Continue!</string>
     <string name="welcome_back">Welcome Back!</string>
+
+    <!--Register Activity-->
+    <string name="register_text"><u>"Don't have an Account? Register."</u></string>
+    <string name="create_a_new_account">Create a new account</string>
+    <string name="register">Register</string>
+
+    <!--Login and Register Activity-->
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
-    <string name="create_a_new_account">Create a new account</string>
     <string name="first_name">First Name</string>
     <string name="last_name">Last Name</string>
     <string name="phone_no">Phone No.</string>
     <string name="confirm_password">Confirm Password</string>
-    <string name="register">Register</string>
     <string name="show_password">Show Password</string>
     <string name="password_dont_match">Password and Confirm Password do not match</string>
-    <string name="welcome_to_trailer_buzz">Welcome to Trailer Buzz</string>
-    <string name="let_s_get_started">Let\'s get Started!</string>
+
+
+    <!--Genres Actvity-->
     <string name="romance">Romance</string>
     <string name="horror">Horror</string>
     <string name="comedy">Comedy</string>
     <string name="action">Action</string>
+    <string name="welcome_to_trailer_buzz">Welcome to Trailer Buzz</string>
+    <string name="let_s_get_started">Let\'s get Started!</string>
+    <string name="please_select_3_categories">Please select 3 Categories.</string>
 
+    <!--Navigation Drawer-->
     <string name="nav_open">Open</string>
     <string name="nav_close">Close</string>
+
+    <!--Video Recommendations Text-->
+    <string name="more_like_this">More Like This</string>
+    <string name="trending">Trending</string>
 
 </resources>

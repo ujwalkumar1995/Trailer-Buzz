@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Fond and Background Colours-->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
@@ -7,12 +8,11 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
-    <color name="start">#7F8C8D</color>
-    <color name="mid">#000000</color>
-    <color name="login_red">#FF1A1A</color>
     <color name="light_grey">#909090</color>
     <color name="silver">#C0C0C0</color>
     <color name="grey_background">#202020</color>
+
+    <!--Genre Activity Colors-->
     <color name="horror_unselected">#ff4d4d</color>
     <color name="horror_selected">#ff1a1a</color>
     <color name="action_unselected">#33adff</color>
@@ -21,7 +21,11 @@
     <color name="comedy_selected">#ffff00</color>
     <color name="romance_unselected">#33ff33</color>
     <color name="romance_selected">#00e600</color>
-    <color name="edit_text_background">#C0C0C0</color>
     <color name="save_deactivated">#737373</color>
+
+    <!--Edit Text Background-->
+    <color name="edit_text_background">#C0C0C0</color>
+
+    <!--Blue Button Background-->
     <color name="blue_button">#001a4d</color>color>
 </resources>
