@@ -55,7 +55,7 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="25dp"
-        android:padding="4dp"
+        android:paddingLeft="4dp"
         android:id="@+id/user_email"
         android:textColor="@color/black"
         android:inputType="textEmailAddress"

@@ -25,19 +25,21 @@
             android:padding="3dp"
             >
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Name"
             android:id="@+id/item_video_name"
             android:textColor="@color/white"
-
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:singleLine="true"
             >
         </TextView>
 
         <ImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:src="@drawable/icon_play_96dp">
+            android:src="@drawable/ic_baseline_play_arrow_24">
         </ImageView>
 
         </LinearLayout>

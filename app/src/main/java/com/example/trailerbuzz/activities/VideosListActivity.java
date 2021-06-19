@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
+import androidx.core.widget.NestedScrollView;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -53,7 +54,11 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+
+import static com.example.trailerbuzz.helper.Constants.VIDEO_INTENT_VIDEO_ID;
+import static com.example.trailerbuzz.helper.Constants.VIDEO_INTENT_VIDEO_NAME;
 
 
 public class VideosListActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
@@ -78,6 +83,7 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
     //Search Recycler View
     private SearchVideoAdapter mSearchVideoAdapter;
     private RecyclerView mSearchRecyclerView;
+    private NestedScrollView mNestedScrollView;
 
     //Progress Bar on Load
     private ProgressBar mProgressBar;
@@ -86,9 +92,6 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
     //Drawer Layout
     public DrawerLayout mDrawerLayout;
     public ActionBarDrawerToggle mActionBarDrawerToggle;
-
-    //Swipe functionality
-    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     //Populate User Details in Nav Drawer
     private String mFirstName;
@@ -114,28 +117,32 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
         mProgressBar = findViewById(R.id.progress_bar);
         mMainContent = findViewById(R.id.main_list_layout);
 
-        mSwipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.swiperefresh);
-
         mDrawerLayout = findViewById(R.id.my_drawer_layout);
         mActionBarDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.nav_open, R.string.nav_close);
+
 
         trailerSet = new HashSet<>();
         videoList = new ArrayList<>();
 
         mGenreSet = new HashSet<>();
 
+        //Top Most Recycler View
         mMainRecyclerView = findViewById(R.id.video_recycler_view);
         mMainRecyclerView.setHasFixedSize(true);
         mMainRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
+        //Recommended Videos
         mRecommendedRecyclerView = findViewById(R.id.recommended_video_recycler_view);
         mRecommendedRecyclerView.setHasFixedSize(true);
         mRecommendedRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
+        //Trending / Most Liked Videos
         mTopLikedRecyclerView = findViewById(R.id.top_liked_recycler_view);
         mTopLikedRecyclerView.setHasFixedSize(true);
         mTopLikedRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
+        //Search Recycler View
+        mNestedScrollView = findViewById(R.id.nested_scroll_view);
         mSearchRecyclerView = findViewById(R.id.search_recycler_view);
         mSearchRecyclerView.setHasFixedSize(true);
         mSearchRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
@@ -145,19 +152,6 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
         mActionBarDrawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        //Check for Swipe Gesture
-        mSwipeRefreshLayout.setOnRefreshListener(
-                new SwipeRefreshLayout.OnRefreshListener() {
-                    @Override
-                    public void onRefresh() {
-                        System.out.println("Refreshed");
-                        populateVideosFromFirebase();
-                        populateTopLikedVideos();
-                        fetchRecommendedMovies();
-                        mSwipeRefreshLayout.setRefreshing(false);
-                    }
-                }
-        );
         setNavigationViewListener();
     }
 
@@ -197,8 +191,8 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
             @Override
             public boolean onClose() {
                 mMainContent.setVisibility(View.VISIBLE);
-                mSearchRecyclerView.setVisibility(View.GONE);
                 mSearchRecyclerView.setAdapter(null);
+                mNestedScrollView.setVisibility(View.GONE);
                 return false;
             }
         });
@@ -207,7 +201,7 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
             @Override
             public void onClick(View v) {
                 mMainContent.setVisibility(View.GONE);
-                mSearchRecyclerView.setVisibility(View.VISIBLE);
+                mNestedScrollView.setVisibility(View.VISIBLE);
             }
         });
 
@@ -219,6 +213,7 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
     private void setNavigationViewListener() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setItemIconTintList(null);
     }
 
     //Handle Clicks in Navigation Drawer
@@ -467,6 +462,7 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
 
         ArrayList<Videos> topLikedVideos = new ArrayList<>();
         Query topVideos = FirebaseDatabase.getInstance().getReference(Constants.VIDEOS).orderByChild("likeCount").limitToLast(10);
+
         topVideos.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
@@ -474,6 +470,7 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
                     Videos video = children.getValue(Videos.class);
                     topLikedVideos.add(video);
                 }
+                Collections.sort(topLikedVideos);
                 mTopLikedVideosAdapter = new TopLikedVideosAdapter(topLikedVideos);
                 mTopLikedRecyclerView.setAdapter(mTopLikedVideosAdapter);
                 mTopLikedVideosAdapter.setOnItemClickListener(new TopLikedVideosAdapter.OnItemClickListener() {
@@ -494,8 +491,8 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
     //Start video player activity
     public void startVideoPlayerActivity(Videos video){
         Intent intent = new Intent(VideosListActivity.this,VideoPlayerActivity.class);
-        intent.putExtra("id",video.getId());
-        intent.putExtra("name",video.getName());
+        intent.putExtra(VIDEO_INTENT_VIDEO_ID,video.getId());
+        intent.putExtra(VIDEO_INTENT_VIDEO_NAME,video.getName());
         startActivity(intent);
         finish();
     }

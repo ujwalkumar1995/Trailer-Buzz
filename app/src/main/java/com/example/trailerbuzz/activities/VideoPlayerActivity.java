@@ -26,6 +26,7 @@ import com.android.volley.Response;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.bumptech.glide.Glide;
 import com.example.exoplayer.R;
 import com.example.trailerbuzz.adapters.VideoAdapter;
 import com.example.trailerbuzz.helper.Constants;
@@ -99,9 +100,12 @@ public class VideoPlayerActivity extends AppCompatActivity {
     private MaterialTextView mTitle;
     private ImageView mFullscreenButton;
     private LinearLayout mVideoDetailsLayout;
+    private ImageView mLikeButton;
+    
+    //Recommedations Recycler View
     private RecyclerView mRecyclerView;
     private VideoAdapter mVideoAdapter;
-    private ImageView mLikeButton;
+
 
 
     @Override
@@ -132,7 +136,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
         mLikeReference = mDatabase.getReference(Constants.LIKES);
 
 
-        //Hanlde clicks on like button
+        //Handle clicks on like button
         mLikeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -173,7 +177,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(mFullscreen) {
-                    mFullscreenButton.setImageDrawable(ContextCompat.getDrawable(VideoPlayerActivity.this, R.drawable.icon_full_screen_96dp));
+                    mFullscreenButton.setImageDrawable(ContextCompat.getDrawable(VideoPlayerActivity.this, R.drawable.ic_baseline_fullscreen_24));
                     getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
                     if(getSupportActionBar() != null){
                         getSupportActionBar().show();
@@ -186,7 +190,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
                     mFullscreen = false;
                     mVideoDetailsLayout.setVisibility(View.VISIBLE);
                 }else{
-                    mFullscreenButton.setImageDrawable(ContextCompat.getDrawable(VideoPlayerActivity.this, R.drawable.icon_shrink_96dp));
+                    mFullscreenButton.setImageDrawable(ContextCompat.getDrawable(VideoPlayerActivity.this, R.drawable.ic_baseline_fullscreen_exit_24));
                     getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
                             |View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                             |View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
@@ -208,8 +212,8 @@ public class VideoPlayerActivity extends AppCompatActivity {
         mPlayerView = findViewById(R.id.video_view);
 
         Intent intent = getIntent();
-        id = intent.getStringExtra("id");
-        trailerTitle = intent.getStringExtra("name");
+        id = intent.getStringExtra(Constants.VIDEO_INTENT_VIDEO_ID);
+        trailerTitle = intent.getStringExtra(Constants.VIDEO_INTENT_VIDEO_NAME);
 
         populateTrailerDetails();
         populateLikeDetails();
@@ -347,7 +351,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
             finish();
         }
         else{
-            mFullscreenButton.setImageDrawable(ContextCompat.getDrawable(VideoPlayerActivity.this, R.drawable.icon_full_screen_96dp));
+            mFullscreenButton.setImageDrawable(ContextCompat.getDrawable(VideoPlayerActivity.this, R.drawable.ic_baseline_fullscreen_24));
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
             if(getSupportActionBar() != null){
                 getSupportActionBar().show();
@@ -377,7 +381,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
                     mDescription.setText(snapshots.getValue(Videos.class).getDescription());
                     mReleaseDate.setText(snapshots.getValue(Videos.class).getReleaseDate());
                     mStarcast.setText("Starring:  "+snapshots.getValue(Videos.class).getStarCast());
-                    Picasso.get().load(snapshots.getValue(Videos.class).getImageUrl()).into(mThumbnail);
+                    Glide.with(VideoPlayerActivity.this).load(snapshots.getValue(Videos.class).getImageUrl()).into(mThumbnail);
                 }
             }
 
@@ -478,8 +482,8 @@ public class VideoPlayerActivity extends AppCompatActivity {
                     public void onItemClick(int position) {
                         Videos video = videoList.get(position);
                         Intent intent = new Intent(VideoPlayerActivity.this,VideoPlayerActivity.class);
-                        intent.putExtra("id",video.getId());
-                        intent.putExtra("name",video.getName());
+                        intent.putExtra(Constants.VIDEO_INTENT_VIDEO_ID,video.getId());
+                        intent.putExtra(Constants.VIDEO_INTENT_VIDEO_NAME,video.getName());
                         startActivity(intent);
                         finish();
                     }

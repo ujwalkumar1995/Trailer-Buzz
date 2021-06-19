@@ -4,16 +4,24 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.exoplayer.R;
 import com.example.trailerbuzz.helper.Constants;
 import com.example.trailerbuzz.helper.Users;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -33,6 +41,7 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView mLastName;
     private TextView mPhoneNo;
     private LinearProgressIndicator mProgressBar;
+    private TextView mForgotPassword;
 
     //Firebase
     private FirebaseAuth mAuth;
@@ -49,6 +58,7 @@ public class ProfileActivity extends AppCompatActivity {
         mLastName = (TextView) findViewById(R.id.user_last_name);
         mPhoneNo = (TextView) findViewById(R.id.phone);
         mProgressBar = (LinearProgressIndicator) findViewById(R.id.profile_progress_bar);
+        mForgotPassword = (TextView) findViewById(R.id.forget_password);
 
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance();
@@ -78,7 +88,17 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
+        //Handle Forget Password Functionality
+        mForgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openForgotPasswordDialog();
+            }
+        });
+
     }
+
+
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -117,6 +137,51 @@ public class ProfileActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    //Dialog to handle forget password
+    private void openForgotPasswordDialog() {
+        LayoutInflater layoutInflater = LayoutInflater.from(getApplicationContext());
+        View promptsView = layoutInflater.inflate(R.layout.forgot_password_dialog, null);
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                ProfileActivity.this);
+        alertDialogBuilder.setView(promptsView);
+
+        EditText userInput = (EditText) promptsView.findViewById(R.id.password_reset_email);
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton("Send", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        FirebaseAuth.getInstance().sendPasswordResetEmail(userInput.getText().toString())
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            Toast.makeText(ProfileActivity.this, "Email Sent", Toast.LENGTH_SHORT).show();
+                                        }
+                                        else{
+                                            Toast.makeText(ProfileActivity.this, "Invalid Email", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                    }
+                })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+        Button positiveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        Button negativeButton = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+        positiveButton.setTextColor(Color.parseColor("#000000"));
+
+        negativeButton.setTextColor(Color.parseColor("#000000"));
+        alertDialog.getWindow().setBackgroundDrawableResource(R.color.white);
     }
 
     @Override

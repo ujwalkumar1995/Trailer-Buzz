@@ -1,6 +1,6 @@
 package com.example.trailerbuzz.helper;
 
-public class Videos {
+public class Videos implements Comparable<Videos> {
 
     private String name;
     private String searchString;
@@ -85,5 +85,8 @@ public class Videos {
     }
 
 
-
+    @Override
+    public int compareTo(Videos o) {
+        return o.likeCount - this.likeCount;
+    }
 }

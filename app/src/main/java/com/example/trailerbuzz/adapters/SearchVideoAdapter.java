@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.exoplayer.R;
 import com.example.trailerbuzz.helper.Videos;
 import com.squareup.picasso.Picasso;
@@ -46,7 +47,7 @@ public class SearchVideoAdapter extends RecyclerView.Adapter<SearchVideoAdapter.
     public void onBindViewHolder(VideoViewHolder holder, int position) {
         Videos video = mVideoList.get(position);
         Uri videoUri = Uri.parse(video.getImageUrl());
-        Picasso.get().load(videoUri).into(holder.mImageView);
+        Glide.with(holder.itemView.getContext()).load(videoUri).into(holder.mImageView);
         holder.mTextView.setText(video.getName());
     }
 

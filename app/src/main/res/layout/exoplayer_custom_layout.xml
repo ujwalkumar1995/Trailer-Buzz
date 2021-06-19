@@ -68,7 +68,7 @@
                 android:layout_gravity="center"
                 android:adjustViewBounds="true"
                 android:scaleType="fitCenter"
-                android:src="@drawable/icon_full_screen_96dp"/>
+                android:src="@drawable/ic_baseline_fullscreen_24"/>
         </FrameLayout>
     </LinearLayout>
 </LinearLayout>
