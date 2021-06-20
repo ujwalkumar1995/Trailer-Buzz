@@ -180,9 +180,13 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
             }
 
             @Override
-            public boolean onQueryTextChange(String newText) {
-                newText = newText.toLowerCase();
-                fetchSearchedMovies(newText);
+            public boolean onQueryTextChange(String query) {
+                if(query == null || query.length() == 0 || query.equals("")) {
+                    mSearchRecyclerView.setAdapter(null);
+                    return false;
+                }
+                query = query.toLowerCase();
+                fetchSearchedMovies(query);
                 return false;
             }
         });
@@ -206,6 +210,35 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
         });
 
         return super.onCreateOptionsMenu(menu);
+    }
+
+    //Fetch searched movies based on query string
+    private void fetchSearchedMovies(String searchString) {
+        System.out.println("I am here");
+        ArrayList<Videos> mainVideoList = new ArrayList<>();
+        Query topVideos = FirebaseDatabase.getInstance().getReference(Constants.VIDEOS).orderByChild("searchString").startAt(searchString).endAt(searchString+"\uf8ff");
+        topVideos.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                for(DataSnapshot children:snapshot.getChildren()){
+                    Videos video = children.getValue(Videos.class);
+                    mainVideoList.add(video);
+                }
+                mSearchVideoAdapter = new SearchVideoAdapter(mainVideoList);
+                mSearchRecyclerView.setAdapter(mSearchVideoAdapter);
+                mSearchVideoAdapter.setOnItemClickListener(new SearchVideoAdapter.OnItemClickListener() {
+                    public void onItemClick(int position) {
+                        Videos video = mainVideoList.get(position);
+                        startVideoPlayerActivity(video);
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+            }
+        });
     }
 
 
@@ -364,40 +397,8 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
         });
     }
 
-    //Fetch searched movies based on query string
-    private void fetchSearchedMovies(String searchString) {
-        if(searchString.equals("")) {
-            mSearchRecyclerView.setAdapter(null);
-            return;
-        }
-        ArrayList<Videos> mainVideoList = new ArrayList<>();
-        Query topVideos = FirebaseDatabase.getInstance().getReference(Constants.VIDEOS).orderByChild("searchString").startAt(searchString).endAt(searchString+"\uf8ff");
-        topVideos.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                for(DataSnapshot children:snapshot.getChildren()){
-                    Videos video = children.getValue(Videos.class);
-                    mainVideoList.add(video);
-                }
-                mSearchVideoAdapter = new SearchVideoAdapter(mainVideoList);
-                mSearchRecyclerView.setAdapter(mSearchVideoAdapter);
-                mSearchVideoAdapter.setOnItemClickListener(new SearchVideoAdapter.OnItemClickListener() {
-                    public void onItemClick(int position) {
-                        Videos video = mainVideoList.get(position);
-                        startVideoPlayerActivity(video);
-                    }
-                });
-            }
 
-            @Override
-            public void onCancelled(@NonNull @NotNull DatabaseError error) {
-
-            }
-        });
-    }
-
-
-    //Populate user details in navigationd drawer
+    //Populate user details in navigation drawer
     private void populateUserDetails() {
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser user = mAuth.getCurrentUser();
@@ -427,7 +428,7 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
         });
     }
 
-    //Populate vidoes in top most recycler view
+    //Populate videos in top most recycler view
     public void populateVideosFromFirebase(){
 
         ArrayList<Videos> mainVideoList = new ArrayList<>();
