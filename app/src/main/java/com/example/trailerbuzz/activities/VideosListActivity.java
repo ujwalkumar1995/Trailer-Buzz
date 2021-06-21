@@ -21,6 +21,7 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
@@ -318,17 +319,11 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
                             parseJsonResults(response, genre);
                             if(totalGenreCount==0)
                                 setFinalRecommendations(trailerSet);
-
-
                         }
                     },
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            totalGenreCount--;
-                            if(totalGenreCount==0)
-                                setFinalRecommendations(trailerSet);
-
                             if (error instanceof NoConnectionError ||
                                     error instanceof NetworkError ||
                                     error instanceof TimeoutError) {
@@ -345,6 +340,10 @@ public class VideosListActivity extends AppCompatActivity implements NavigationV
                         }
                     }
             );
+            jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(
+                    0,
+                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonArrayRequest);
         }
 
