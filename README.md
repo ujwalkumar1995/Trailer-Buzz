@@ -27,7 +27,7 @@ https://github.com/ujwalkumar1995/Movie-Recommendation-API
 
 ### Glide
 
-Glide is an Image Loader Library for Android developed by bumptech and is a library that is recommended by Google. We have used Glide to load the thumbnails of the trailers in our application. Glide uses memory by default to avoid unnecessary network requests. By this way we are able to save network resources are thumbnail are loaded from local cache whenever needed.
+Glide is an Image Loader Library for Android developed by bumptech and is a library that is recommended by Google. We have used Glide to load the thumbnails of the trailers in our application. Glide uses memory by default to avoid unnecessary network requests. By this way we are able to save network resources as thumbnail are loaded from local cache whenever needed.
 
 ## Project Structure Description
 
